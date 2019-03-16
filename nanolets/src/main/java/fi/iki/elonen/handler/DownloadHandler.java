@@ -8,6 +8,8 @@ import fi.iki.elonen.router.RouterNanoHTTPD;
 import java.io.*;
 import java.util.Map;
 
+/**
+ * 负责提供文件下载服务*/
 public class DownloadHandler extends RouterNanoHTTPD.DefaultStreamHandler {
 
     @Override

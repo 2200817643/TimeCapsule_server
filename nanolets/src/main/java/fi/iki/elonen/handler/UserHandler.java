@@ -10,7 +10,9 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
-
+/**
+ * 负责管理创建胶囊后的添加用户
+ * */
 public class UserHandler extends RouterNanoHTTPD.StaticPageHandler {
 
 

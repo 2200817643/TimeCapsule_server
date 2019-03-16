@@ -21,6 +21,9 @@ import java.util.Map;
 import static fi.iki.elonen.NanoHTTPD.decodeParameters;
 import static fi.iki.elonen.NanoHTTPD.newFixedLengthResponse;
 
+/**
+ * 负责接受上传的文件，并加入options里面
+ */
 public class UploadHandler extends RouterNanoHTTPD.DefaultStreamHandler {
     public NanoHTTPD.Response response = newFixedLengthResponse("");
 
