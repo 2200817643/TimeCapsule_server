@@ -2,6 +2,7 @@ package fi.iki.elonen.crypto;
 
 import com.alibaba.fastjson.JSON;
 import fi.iki.elonen.CapsuleStructure;
+import fi.iki.elonen.NanoFileUpload;
 import fi.iki.elonen.crypto.CryptoOptions.User;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.http.entity.ContentType;
@@ -25,6 +26,7 @@ import java.util.Map;
 public class DecryptProcess extends Thread {
     private CryptoOptions options;
     CapsuleStructure capsule;
+    private int processid=-999;
     public DecryptProcess(CryptoOptions options) {
         this.options = options;
     }
@@ -193,5 +195,34 @@ public class DecryptProcess extends Thread {
 
         }
         return flag;
+    }
+
+    public void addUser(User user) throws Exception {
+        options.addUser(user);
+        System.out.println("解密过程id="+processid+"：添加了用户"+user);
+        // 如果人数够了，就进行加密
+        if (options.getTotal_users().size() == options.getTotalNum()) {
+            this.start();
+        }
+    }
+
+    public void setUploadedFile(FileItem file){
+        options.setUploadedFile(file);
+    }
+
+    public void setException(Exception e) {
+        options.setException(e);
+    }
+
+    public void setUploader(NanoFileUpload uploader) {
+        options.setUploader(uploader);
+    }
+
+    public void setProcessid(int processid) {
+        this.processid = processid;
+    }
+
+    public int getProcessid() {
+        return processid;
     }
 }

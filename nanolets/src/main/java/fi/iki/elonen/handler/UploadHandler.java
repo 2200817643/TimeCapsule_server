@@ -1,5 +1,6 @@
 package fi.iki.elonen.handler;
 
+import fi.iki.elonen.AppNanolets;
 import fi.iki.elonen.NanoFileUpload;
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.crypto.CryptoOptions;
@@ -8,6 +9,7 @@ import fi.iki.elonen.crypto.DecryptProcess;
 import fi.iki.elonen.crypto.EncryptProcess;
 import fi.iki.elonen.router.RouterNanoHTTPD;
 import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 
 import javax.crypto.Cipher;
@@ -20,11 +22,12 @@ import java.util.Map;
 
 import static fi.iki.elonen.NanoHTTPD.decodeParameters;
 import static fi.iki.elonen.NanoHTTPD.newFixedLengthResponse;
+import static fi.iki.elonen.router.RouterNanoHTTPD.*;
 
 /**
  * 负责接受上传的文件，并加入options里面
  */
-public class UploadHandler extends RouterNanoHTTPD.DefaultStreamHandler {
+public class UploadHandler extends DefaultStreamHandler {
     public NanoHTTPD.Response response = newFixedLengthResponse("");
 
     public String uri;
@@ -33,7 +36,6 @@ public class UploadHandler extends RouterNanoHTTPD.DefaultStreamHandler {
 
     public Map<String, String> header;
 
-    public Map<String, String> parms;
 
     public Map<String, List<FileItem>> files;
 
@@ -68,20 +70,14 @@ public class UploadHandler extends RouterNanoHTTPD.DefaultStreamHandler {
     NanoFileUpload uploader;
 
     @Override
-    public NanoHTTPD.Response post(RouterNanoHTTPD.UriResource uriResource, Map<String, String> urlParams, NanoHTTPD.IHTTPSession session) {
-        this.uri = session.getUri();
-        this.method = session.getMethod();
-        this.header = session.getHeaders();
-        this.parms = session.getParms();
+    public NanoHTTPD.Response post(UriResource uriResource, Map<String, String> urlParams, IHTTPSession session) {
+        Map<String, String> params=session.getParms();
         try {
 
-
             files = new HashMap<String, List<FileItem>>();
-
-
             FileItem uploadedFile = null;
-            //取文件列表，方便起见，只取第一个
-            uploadedFile = uploader.parseRequest(session).get(0);
+
+
 
 //            Random random = new Random();
 //
@@ -95,41 +91,25 @@ public class UploadHandler extends RouterNanoHTTPD.DefaultStreamHandler {
 //            os.flush();
 //            os.close();
             //  byte a[]=new byte[i*10*1024*1024];
-            CryptoOptions options = new CryptoOptions();
-
             //判断上传的文件要加密还是解密
-            if (parms.getOrDefault("action", "upload_to_encrypt").equalsIgnoreCase("upload_to_encrypt")) {
+            if (params.getOrDefault("action", "upload_to_encrypt").equalsIgnoreCase("upload_to_encrypt")) {
                 System.out.println("upload_to_encrypt");
 
-                options.setLeastNum((int) Math.ceil(((float) 10) / 2));
-                options.setTotalNum(10);
-                options.setUploadedFile(uploadedFile);
-                options.setUploader(uploader);
+                int processid=Integer.valueOf(params.get("processid"));
+                EncryptProcess ep= AppNanolets.instance.getEncryptProcess(processid);
 
-                // 测试用户列表
-                List<User> users = new ArrayList<User>();
-                addTestUsers(10,Cipher.ENCRYPT_MODE, users);
 
-                options.setTotal_users(users);
-                System.out.println("判断");
-                if (options.getTotal_users().size() == options.getTotalNum()) {
-                    System.out.println("加密了");
-                    EncryptProcess b = new EncryptProcess(options);
-                    b.run();
-                }
+                ep.setUploadedFile(uploadedFile);
+                ep.setUploader(uploader);
+
             }else{
                 System.out.println("upload_to_decrypt");
-// 测试用户列表
-                List<User> users = new ArrayList<User>();
-                //addTestUsers(5,Cipher.DECRYPT_MODE, users);
-                options.setTotal_users(users);
-
-                options.setUploadedFile(uploadedFile);
-                options.setUploader(uploader);
+                int processid=Integer.valueOf(params.get("processid"));
+                DecryptProcess dp= AppNanolets.instance.getDecryptProcess(processid);
 
 
-                DecryptProcess p=new DecryptProcess(options);
-                p.run();
+                dp.setUploadedFile(uploadedFile);
+                dp.setUploader(uploader);
             }
 
 

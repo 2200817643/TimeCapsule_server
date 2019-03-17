@@ -18,8 +18,8 @@ public class CryptoOptions {
     public static final String TYPE = "PBEWithHmacSHA256AndAES_256";
 
     public CryptoOptions() {
-        SecureRandom random = new SecureRandom();
-        setSalt(random.generateSeed(8));
+//        SecureRandom random = new SecureRandom();
+//        setSalt(random.generateSeed(8));
     }
 
     public FileItem getUploadedFile() {
@@ -85,19 +85,6 @@ public class CryptoOptions {
     public void setTotal_users(List<User> total_users) {
         this.total_users = total_users;
     }
-
-    public void addUser(User user) throws Exception {
-        if (total_users.size() + 1 > getTotalNum())
-            throw new Exception("太多用户了！");
-
-        total_users.add(user);
-
-        if (total_users.size() == getLeastNum()) {
-            System.out.println("达到设定的最少人数");
-        }
-        System.out.println("user = [" + user + "] added");
-    }
-
     public int getTotalNum() {
         return totalNum;
     }
@@ -113,7 +100,25 @@ public class CryptoOptions {
     public void setDecrypting_users(List<User> decrypting_users) {
         this.decrypting_users = decrypting_users;
     }
+    public void addUser(User user) throws Exception {
+        if (total_users.size() + 1 > getTotalNum())
+            throw new Exception("太多用户了！");
 
+        total_users.add(user);
+
+        if (total_users.size() == getLeastNum()) {
+            System.out.println("达到设定的最少人数");
+        }
+        System.out.println("user = [" + user + "] added");
+    }
+
+    public String getCapsulename() {
+        return capsulename;
+    }
+
+    public void setCapsulename(String capsulename) {
+        this.capsulename = capsulename;
+    }
 
     public static class User implements Comparable<User> {
         private int id;
@@ -200,6 +205,8 @@ if(id==998||id==999){
             return this.getId() - o.getId();
         }
     }
+
+    private String capsulename="capsulename_null";
 
     // 所有参与加密的用户
     private List<User> total_users = new ArrayList<>();

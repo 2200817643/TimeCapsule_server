@@ -2,30 +2,32 @@ package fi.iki.elonen.crypto;
 
 import com.alibaba.fastjson.JSON;
 import fi.iki.elonen.CapsuleStructure;
+import fi.iki.elonen.NanoFileUpload;
 import fi.iki.elonen.crypto.CryptoOptions.User;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.http.entity.ContentType;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherOutputStream;
-import javax.crypto.spec.SecretKeySpec;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 负责：添加用户，数量够了就开始
+ */
 public class EncryptProcess extends Thread {
-    CryptoOptions options;
-
+    private CryptoOptions options;
+private int processid=-999;
     public EncryptProcess(CryptoOptions options) {
         //设置线程名
         super("EncryptProcess1");
         // test
-        this.options = options;
+        this.setOptions(options);
 
 
     }
@@ -36,7 +38,7 @@ public class EncryptProcess extends Thread {
     FileItem encryptedFile, packedFile;
 
     private FileItem createEncryptedFile() {
-        encryptedFile = options.getFileItemFactory().createItem(encryptedFile_FIELD_NAME, ContentType.DEFAULT_BINARY.toString(), false, encryptedFile_FIELD_NAME + "Name");
+        encryptedFile = getOptions().getFileItemFactory().createItem(encryptedFile_FIELD_NAME, ContentType.DEFAULT_BINARY.toString(), false, encryptedFile_FIELD_NAME + "Name");
         return encryptedFile;
     }
 
@@ -53,7 +55,7 @@ public class EncryptProcess extends Thread {
             user.setId(998);
             Cipher cipher=user.getCipher(Cipher.ENCRYPT_MODE);
 
-            options.setSalt(user.getSalt());
+            getOptions().setSalt(user.getSalt());
 //            byte k[] = mainPass.getBytes();
 //            SecretKeySpec key = new SecretKeySpec(k, CryptoOptions.TYPE);
 //            Cipher enc = Cipher.getInstance(CryptoOptions.TYPE);
@@ -72,10 +74,10 @@ public class EncryptProcess extends Thread {
             outStream.flush();
             cos.close();
 
-            options.setMainKey(mainPass);
+            getOptions().setMainKey(mainPass);
         } catch (Exception e) {
             e.printStackTrace();
-            options.setException(e);
+            getOptions().setException(e);
         }
     }
 
@@ -87,30 +89,30 @@ public class EncryptProcess extends Thread {
 
         System.out.println("subsets");
         ArrayList<int[]> subsets = new ArrayList<>();
-        int input[] = new int[options.getTotalNum()];
-        for (int n = 0; n < options.getTotalNum(); n++) {
+        int input[] = new int[getOptions().getTotalNum()];
+        for (int n = 0; n < getOptions().getTotalNum(); n++) {
             input[n] = n;
         }
-        int output[] = new int[options.getLeastNum()];
+        int output[] = new int[getOptions().getLeastNum()];
         dfs(input, output, 0, 0, subsets);
         System.out.println("subsetsed");
 
-        List<User> users = options.getTotal_users();
+        List<User> users = getOptions().getTotal_users();
         // 从组合中取出子集
         for (int[] a : subsets) {
             byte mainPassCopy[] = mainPass.getBytes();
             // 按照子集中的排列，加密主密钥
             for (int n : a) {
-                if(a[0]==0&a[1]==1&a[2]==2&a[3]==3&a[4]==4){
-                    System.out.println("加密前n="+n+",[0]="+mainPassCopy[0]+",[1]="+mainPassCopy[1]);
-                }
+//                if(a[0]==0&a[1]==1&a[2]==2&a[3]==3&a[4]==4){
+//                    System.out.println("加密前n="+n+",[0]="+mainPassCopy[0]+",[1]="+mainPassCopy[1]);
+//                }
                 User user = users.get(n);
                 mainPassCopy = encryptWithCipher(user.getCipher(Cipher.ENCRYPT_MODE), mainPassCopy);
             }
-            if(a[0]==0&a[1]==1&a[2]==2&a[3]==3&a[4]==4){
-                System.out.println("加密后,[0]="+mainPassCopy[0]+",[1]="+mainPassCopy[1]);
-                User user = users.get(4);
-            }
+//            if(a[0]==0&a[1]==1&a[2]==2&a[3]==3&a[4]==4){
+//                System.out.println("加密后,[0]="+mainPassCopy[0]+",[1]="+mainPassCopy[1]);
+//                User user = users.get(4);
+//            }
             map1.put(a, mainPassCopy);
 
         }
@@ -121,13 +123,13 @@ public class EncryptProcess extends Thread {
     /*任务3，
      * 1.将加密结果打包并返回给文件工厂。*/
     public void part3(Map<int[], byte[]> map1) {
-        packedFile = options.getFileItemFactory().createItem(packedFile_FIELD_NAME, ContentType.DEFAULT_BINARY.toString(), false, packedFile_FIELD_NAME + "Name");
+        packedFile = getOptions().getFileItemFactory().createItem(packedFile_FIELD_NAME, ContentType.DEFAULT_BINARY.toString(), false, packedFile_FIELD_NAME + "Name");
 
         CapsuleStructure capsule=new CapsuleStructure();
         capsule.encryptedFileBytes=encryptedFile.get();
-        capsule.totalUsers=options.getTotal_users();
-        capsule.leastNum=options.getLeastNum();
-        capsule.salt=options.getSalt();
+        capsule.totalUsers= getOptions().getTotal_users();
+        capsule.leastNum= getOptions().getLeastNum();
+        capsule.salt= getOptions().getSalt();
         capsule.subsets=map1;
 
 
@@ -138,7 +140,7 @@ public class EncryptProcess extends Thread {
             packedFile.write(new File("C:\\Users\\QinHuoBin\\Desktop\\Repository\\encrypt\\123123"));
         } catch (Exception e) {
             e.printStackTrace();
-            options.setException(e);
+            getOptions().setException(e);
         }
 
     }
@@ -213,14 +215,51 @@ public class EncryptProcess extends Thread {
     public void run() {
         System.out.println("运行中");
 
-        if (options.getTotal_users().size() != options.getTotalNum()) {
+        if (getOptions().getTotal_users().size() != getOptions().getTotalNum()) {
             System.out.println(("人不够！"));
         }
         System.out.println("part0");
-        part1(options.getUploadedFile());
+        part1(getOptions().getUploadedFile());
         System.out.println("part1");
         part3(part2());
         System.out.println("part3");
 
+    }
+
+    public CryptoOptions getOptions() {
+        return options;
+    }
+
+    public void setOptions(CryptoOptions options) {
+        this.options = options;
+    }
+
+    public void addUser(User user) throws Exception {
+        options.addUser(user);
+        System.out.println("加密过程id="+processid+"：添加了用户"+user);
+        // 如果人数够了，就进行加密
+        if (options.getTotal_users().size() == options.getTotalNum()) {
+            this.start();
+        }
+    }
+
+    public void setUploadedFile(FileItem file){
+        options.setUploadedFile(file);
+    }
+
+    public void setException(Exception e) {
+        options.setException(e);
+    }
+
+    public void setUploader(NanoFileUpload uploader) {
+        options.setUploader(uploader);
+    }
+
+    public int getProcessid() {
+        return processid;
+    }
+
+    public void setProcessid(int processid) {
+        this.processid = processid;
     }
 }

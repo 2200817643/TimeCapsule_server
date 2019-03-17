@@ -1,8 +1,11 @@
 package fi.iki.elonen.handler;
 
+import fi.iki.elonen.AppNanolets;
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoHTTPD.Response;
 import fi.iki.elonen.crypto.CryptoOptions;
+import fi.iki.elonen.crypto.CryptoOptions.User;
+import fi.iki.elonen.crypto.DecryptProcess;
 import fi.iki.elonen.crypto.EncryptProcess;
 import fi.iki.elonen.router.RouterNanoHTTPD;
 
@@ -10,15 +13,19 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
+
+import static fi.iki.elonen.NanoHTTPD.*;
+import static fi.iki.elonen.router.RouterNanoHTTPD.*;
+
 /**
  * 负责管理创建胶囊后的添加用户
  * */
-public class UserHandler extends RouterNanoHTTPD.StaticPageHandler {
+public class UserHandler extends StaticPageHandler {
 
 
-    private RouterNanoHTTPD.UriResource uriResource;
+    private UriResource uriResource;
     private Map<String, String> urlParams;
-    private NanoHTTPD.IHTTPSession session;
+    private IHTTPSession session;
 
     @Override
     protected BufferedInputStream fileToInputStream(File fileOrdirectory) throws IOException {
@@ -29,32 +36,48 @@ public class UserHandler extends RouterNanoHTTPD.StaticPageHandler {
     }
 
     @Override
-    public Response get(RouterNanoHTTPD.UriResource uriResource, Map<String, String> urlParams, NanoHTTPD.IHTTPSession session) {
-        this.uriResource = uriResource;
-        this.urlParams = urlParams;
-        this.session = session;
-        System.out.println("有请求");
-        if (uriResource.getUri().contains("addEncryptionUser")) {
-            // 如果不是点“确定”进这个页面的，回到填信息那个页面
-            if (session.getParms().getOrDefault("doAction", "false").equalsIgnoreCase("true")) {
-                CryptoOptions.User user = new CryptoOptions.User();
-                user.setName(session.getParms().get("username"));
-                user.setPassword(session.getParms().get("password"));
+    public Response get(UriResource uriResource, Map<String, String> urlParams, IHTTPSession session) {
+        Map<String, String> params=session.getParms();
 
-                CryptoOptions options = uriResource.initParameter(1, CryptoOptions.class);
+        System.out.println("有请求_UserHandler");
+        //添加加密参与者
+        if (session.getUri().contains("addEncryptionUser")) {
+            // 如果不是点“确定”进这个页面的，回到填信息那个页面
+            if (params.getOrDefault("doAction", "false").equalsIgnoreCase("true")) {
+                User user = new User();
+                user.setName(String.valueOf(params.get("username")));
+                user.setPassword(String.valueOf(params.get("password")));
+
+                int processid=Integer.valueOf(params.get("processid"));
+                EncryptProcess ep=AppNanolets.instance.getEncryptProcess(processid);
                 try {
-                    options.addUser(user);
+                    ep.addUser(user);
+                    return newFixedLengthResponse(getStatus(), getMimeType(), a);
                 } catch (Exception e) {
                     e.printStackTrace();
-                    options.setException(e);
+                    ep.setException(e);
                 }
-
-                // 如果人数够了，就进行加密
-                if (options.getTotal_users().size() == options.getTotalNum()) {
-                    new EncryptProcess(options).start();
-                }
-                return NanoHTTPD.newFixedLengthResponse(getStatus(), getMimeType(), "添加成功");
             } else {
+                return super.get(uriResource, urlParams, session);
+            }
+            //添加解密参与者
+        }else if(session.getUri().contains("addDecryptionUser")){
+            // 如果不是点“确定”进这个页面的，回到填信息那个页面
+            if (params.getOrDefault("doAction", "false").equalsIgnoreCase("true")){
+                User user = new User();
+                user.setName(String.valueOf(params.get("username")));
+                user.setPassword(String.valueOf(params.get("password")));
+
+                int processid=Integer.valueOf(params.get("processid"));
+                DecryptProcess dp=AppNanolets.instance.getDecryptProcess(processid);
+                try {
+                    dp.addUser(user);
+                    return newFixedLengthResponse(getStatus(), getMimeType(), a);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    dp.setException(e);
+                }
+            }else {
                 return super.get(uriResource, urlParams, session);
             }
         }
@@ -64,7 +87,47 @@ public class UserHandler extends RouterNanoHTTPD.StaticPageHandler {
 
     @Override
     public String getMimeType() {
-        return "text/plain";
+        return "text/html";
     }
+
+    String a="<!doctype html>\n" +
+            "<html>\n" +
+            "<head>\n" +
+            "<meta charset=\"utf-8\">\n" +
+            "<title>添加成功</title>\n" +
+            "\n" +
+            "<link href=\"../default/jquery.mobile.theme-1.4.5.css\" rel=\"stylesheet\">\n" +
+            "<link href=\"../default/jquery.mobile.icons-1.4.5.min.css\" rel=\"stylesheet\">\n" +
+            "<link href=\"../default/jquery.mobile.structure-1.4.5.min.css\" rel=\"stylesheet\">\n" +
+            "\n" +
+            "<link href=\"setup.css\" rel=\"stylesheet\">\n" +
+            "<script src=\"../default/jquery-1.12.4.min.js\"></script>\n" +
+            "<script>\n" +
+            "$(document).on(\"mobileinit\", function()\n" +
+            "{\n" +
+            "   $.mobile.ajaxEnabled = true;\n" +
+            "});\n" +
+            "</script>\n" +
+            "<script src=\"../default/jquery.mobile-1.4.5.min.js\"></script>\n" +
+            "\n" +
+            "\n" +
+            "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n" +
+            "</head>\n" +
+            "\n" +
+            "\n" +
+            "\n" +
+            "<body>\n" +
+            "<div data-role=\"page\" data-theme=\"a\" data-title=\"Untitled Page\" id=\"user_input\">\n" +
+            "<div data-role=\"header\" id=\"Header1\">\n" +
+            "<h1>添加成功！</h1>\n" +
+            "</div>\n" +
+            "\n" +
+            "<div class=\"ui-content\" role=\"main\">\n" +
+            "<label >添加成功！</label>\n" +
+            "</div>\n" +
+            "\n" +
+            "</div>\n" +
+            "</body>\n" +
+            "</html>";
 
 }

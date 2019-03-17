@@ -1,7 +1,10 @@
 package fi.iki.elonen;
 
 
+import fi.iki.elonen.crypto.DecryptProcess;
+import fi.iki.elonen.crypto.EncryptProcess;
 import fi.iki.elonen.handler.DownloadHandler;
+import fi.iki.elonen.handler.OperationHandler;
 import fi.iki.elonen.handler.UploadHandler;
 import fi.iki.elonen.handler.UserHandler;
 import fi.iki.elonen.router.RouterNanoHTTPD;
@@ -9,6 +12,8 @@ import fi.iki.elonen.util.ServerRunner;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -16,6 +21,8 @@ import java.util.logging.Logger;
 public class AppNanolets extends RouterNanoHTTPD {
 
     private static final int PORT = 9090;
+    private Map<Integer, EncryptProcess> encryptings = new HashMap<>();
+    private Map<Integer, DecryptProcess> decryptings = new HashMap<>();
     public static AppNanolets instance;
 
     /**
@@ -39,11 +46,16 @@ public class AppNanolets extends RouterNanoHTTPD {
         System.out.println(Logger.getLogger(NanoHTTPD.class.getName()).getLevel());
         // Logger.getLogger(NanoHTTPD.class.getName()).log(Level.CONFIG,"123123123");
         super.addMappings();
-        addRoute("/upload", UploadHandler.class, this);
-        addRoute("/browse/(.)+", UserHandler.class, new File(
-                "C:\\Users\\QinHuoBin\\Desktop\\网页设计\\").getAbsoluteFile());
+        addRoute("/upload", UploadHandler.class);
+        addRoute("/operation/(.)+", OperationHandler.class, new File(
+                "C:\\Users\\QinHuoBin\\Desktop\\网页设计\\OperationHandler\\").getAbsoluteFile());
         addRoute("/download/(.)+", DownloadHandler.class);
-        // addRoute("/user", UserHandler.class);
+         addRoute("/user/(.)+", UserHandler.class,new File(
+                 "C:\\Users\\QinHuoBin\\Desktop\\网页设计\\UserHandler\\").getAbsoluteFile());
+
+
+         addRoute("/default/(.)+",StaticPageHandler.class,new File(
+                 "C:\\Users\\QinHuoBin\\Desktop\\网页设计\\default\\").getAbsoluteFile());
 //        addRoute("/user", UserHandler.class); // add it twice to execute the
 //                                              // priority == priority case
 //        addRoute("/user/help", GeneralHandler.class);
@@ -70,5 +82,23 @@ public class AppNanolets extends RouterNanoHTTPD {
         ServerRunner.run(AppNanolets.class);
     }
 
+    public EncryptProcess getEncryptProcess(int processid){
+        return encryptings.get(processid);
+    }
 
+    public DecryptProcess getDecryptProcess(int processid){
+        return decryptings.get(processid);
+    }
+
+    public void addEncryptProcess(EncryptProcess ep) {
+        ep.setProcessid(encryptings.size());
+        encryptings.put(encryptings.size(), ep);
+        System.out.println("添加了加密过程"+encryptings);
+    }
+
+    public void addDecryptProcess(DecryptProcess dp) {
+        dp.setProcessid(encryptings.size());
+        decryptings.put(decryptings.size(), dp);
+        System.out.println("添加了解密过程"+encryptings);
+    }
 }
