@@ -7,16 +7,15 @@ import fi.iki.elonen.crypto.CryptoOptions;
 import fi.iki.elonen.crypto.CryptoOptions.User;
 import fi.iki.elonen.crypto.DecryptProcess;
 import fi.iki.elonen.crypto.EncryptProcess;
-import fi.iki.elonen.router.RouterNanoHTTPD;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemIterator;
+import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.util.Streams;
 
 import javax.crypto.Cipher;
 import java.io.File;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -44,7 +43,7 @@ public class UploadHandler extends DefaultStreamHandler {
     public Map<String, List<String>> decodedParamtersFromParameter;
 
     public String queryParameterString;
-
+    NanoFileUpload uploader;
 
     public UploadHandler() {
         DiskFileItemFactory factory = new DiskFileItemFactory(1000 * 1024 * 1024, new File("C:\\Users\\QinHuoBin\\Desktop\\Repository"));
@@ -67,18 +66,10 @@ public class UploadHandler extends DefaultStreamHandler {
         return null;
     }
 
-    NanoFileUpload uploader;
-
     @Override
     public NanoHTTPD.Response post(UriResource uriResource, Map<String, String> urlParams, IHTTPSession session) {
-        Map<String, String> params=session.getParms();
+        Map<String, String> params = session.getParms();
         try {
-
-            files = new HashMap<String, List<FileItem>>();
-            FileItem uploadedFile = null;
-
-
-
 //            Random random = new Random();
 //
 //            random.nextBytes(bytes);
@@ -92,24 +83,54 @@ public class UploadHandler extends DefaultStreamHandler {
 //            os.close();
             //  byte a[]=new byte[i*10*1024*1024];
             //判断上传的文件要加密还是解密
+            System.out.println("有请求_UploadHandler");
             if (params.getOrDefault("action", "upload_to_encrypt").equalsIgnoreCase("upload_to_encrypt")) {
                 System.out.println("upload_to_encrypt");
 
-                int processid=Integer.valueOf(params.get("processid"));
-                EncryptProcess ep= AppNanolets.instance.getEncryptProcess(processid);
+                //根据id获取加密进程
+                int processid = Integer.valueOf(params.get("processid"));
+                EncryptProcess ep = AppNanolets.instance.getEncryptProcess(processid);
 
 
-                ep.setUploadedFile(uploadedFile);
+                FileItemIterator iter = uploader.getItemIterator(session);
+                while (iter.hasNext()) {
+                    FileItemStream item = iter.next();
+                    if(!item.getFieldName().equalsIgnoreCase("uploadingfiles")){
+                        continue;
+                    }
+                    String fileName = item.getName();
+                    FileItem fileItem = uploader.getFileItemFactory().createItem(item.getFieldName(), item.getContentType(), item.isFormField(), fileName);
+
+                    Streams.copy(item.openStream(), fileItem.getOutputStream(), true);
+
+                    fileItem.setHeaders(item.getHeaders());
+                    ep.addUploadedFile(fileItem);
+                    System.out.println("加入了文件"+fileName);
+                }
+
                 ep.setUploader(uploader);
 
-            }else{
+            } else {
                 System.out.println("upload_to_decrypt");
-                int processid=Integer.valueOf(params.get("processid"));
-                DecryptProcess dp= AppNanolets.instance.getDecryptProcess(processid);
 
+                CryptoOptions options = new CryptoOptions(Cipher.DECRYPT_MODE);
 
-                dp.setUploadedFile(uploadedFile);
+                DecryptProcess dp = new DecryptProcess(options);
+                int processid = Integer.valueOf(params.get("processid"));
+                AppNanolets.instance.addDecryptProcess(processid,dp);
+
+               FileItem capsuleFile=null;
+               for(FileItem file:uploader.parseRequest(session)){
+                   if(file.getFieldName().equalsIgnoreCase("capsulefile")){
+                       capsuleFile=file;
+                       System.out.println("解密文件：对头");
+                   }
+               }
+                dp.setCapsuleFile(capsuleFile);
                 dp.setUploader(uploader);
+
+                //解析，使totaluser之类的出来，才能加用户
+                dp.part1(capsuleFile);
             }
 
 
@@ -133,7 +154,7 @@ public class UploadHandler extends DefaultStreamHandler {
         return this.response;
     }
 
-    private void addTestUsers(int i,int cipher_mode, List<User> users) {
+    private void addTestUsers(int i, int cipher_mode, List<User> users) {
         for (int num = 0; num < i; num++) {
             User u = new User();
             u.setId(num);

@@ -96,9 +96,9 @@ public class AppNanolets extends RouterNanoHTTPD {
         System.out.println("添加了加密过程"+encryptings);
     }
 
-    public void addDecryptProcess(DecryptProcess dp) {
-        dp.setProcessid(encryptings.size());
-        decryptings.put(decryptings.size(), dp);
-        System.out.println("添加了解密过程"+encryptings);
+    public void addDecryptProcess(int processid, DecryptProcess dp) {
+        dp.setProcessid(processid);
+        decryptings.put(processid, dp);
+        System.out.println("添加了解密过程"+decryptings);
     }
 }

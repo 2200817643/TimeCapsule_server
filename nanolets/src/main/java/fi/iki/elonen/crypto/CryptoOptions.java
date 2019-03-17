@@ -10,20 +10,22 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.PBEParameterSpec;
+import java.io.File;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 
 public class CryptoOptions {
     public static final String TYPE = "PBEWithHmacSHA256AndAES_256";
-
-    public CryptoOptions() {
+private final int MODE;
+    public CryptoOptions(int MODE) {
 //        SecureRandom random = new SecureRandom();
 //        setSalt(random.generateSeed(8));
+        this.MODE=MODE;
     }
 
-    public FileItem getUploadedFile() {
-        return uploadedFile;
+    public List<FileItem> getUploadedFiles() {
+        return uploadedFiles;
     }
 
     public FileItemFactory getFileItemFactory() {
@@ -70,10 +72,6 @@ public class CryptoOptions {
         this.leastNum = leastNum;
     }
 
-    public void setUploadedFile(FileItem uploadedFile) {
-        this.uploadedFile = uploadedFile;
-    }
-
     public NanoFileUpload getUploader() {
         return uploader;
     }
@@ -100,15 +98,29 @@ public class CryptoOptions {
     public void setDecrypting_users(List<User> decrypting_users) {
         this.decrypting_users = decrypting_users;
     }
-    public void addUser(User user) throws Exception {
-        if (total_users.size() + 1 > getTotalNum())
-            throw new Exception("太多用户了！");
 
-        total_users.add(user);
+    public void addUser(User user,int mode) throws Exception {
+        if(mode==Cipher.ENCRYPT_MODE){
+            if (total_users.size() + 1 > getTotalNum())
+                throw new Exception("太多用户了！");
 
-        if (total_users.size() == getLeastNum()) {
-            System.out.println("达到设定的最少人数");
+            total_users.add(user);
+
+            if (total_users.size() == getLeastNum()) {
+                System.out.println("达到设定的最大人数");
+            }
         }
+        else if(mode==Cipher.DECRYPT_MODE){
+            if (decrypting_users.size() + 1 > getTotalNum())
+                throw new Exception("太多用户了！");
+
+            decrypting_users.add(user);
+
+            if (decrypting_users.size() == getLeastNum()) {
+                System.out.println("达到设定的最少人数");
+            }
+        }
+
         System.out.println("user = [" + user + "] added");
     }
 
@@ -118,6 +130,24 @@ public class CryptoOptions {
 
     public void setCapsulename(String capsulename) {
         this.capsulename = capsulename;
+    }
+
+    public void addUploadedFile(FileItem uploadedFile) {
+        if(MODE==Cipher.DECRYPT_MODE)
+            throw new RuntimeException("搞错了！");
+        this.uploadedFiles.add(uploadedFile);
+    }
+
+    public FileItem getCapsuleFile() {
+        if(MODE==Cipher.ENCRYPT_MODE)
+            throw new RuntimeException("搞错了！");
+        return capsuleFile;
+    }
+
+    public void setCapsuleFile(FileItem capsuleFile) {
+        if(MODE==Cipher.ENCRYPT_MODE)
+            throw new RuntimeException("搞错了！");
+        this.capsuleFile = capsuleFile;
     }
 
     public static class User implements Comparable<User> {
@@ -225,7 +255,12 @@ if(id==998||id==999){
     // 加密过程中使用的扰码
     private byte[] salt;
 
-    private FileItem uploadedFile;
+    //加密时赋值这个
+    private List<FileItem> uploadedFiles=new ArrayList<>();
+    //解密时赋值这个
+    private FileItem capsuleFile;
+
+
 
     public User findUser(String name){
         for(User user: getTotal_users()){

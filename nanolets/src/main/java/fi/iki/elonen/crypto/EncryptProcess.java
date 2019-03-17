@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
  * 负责：添加用户，数量够了就开始
@@ -33,37 +35,80 @@ private int processid=-999;
     }
 
     static final String encryptedFile_FIELD_NAME = "EncryptedFile";
-    static final String packedFile_FIELD_NAME = "PackedFile";
+    static final String packedFile_FIELD_NAME = "packedFile";
+    static final String capsuleFile_FIELD_NAME = "capsuleFile";
     static final String mainPass = "CooL2116NiTh5252";
-    FileItem encryptedFile, packedFile;
+    //packedFile：将上传的文件打包成一个zip，方便加密
+    //encryptedFile：将zip加密后的文件
+    //capsuleFile：最终提供下载的包囊文件
+    FileItem packedFile,encryptedFile, capsuleFile;
 
+    private FileItem createPackedFile() {
+        packedFile = getOptions().getFileItemFactory().createItem(packedFile_FIELD_NAME+processid, ContentType.DEFAULT_BINARY.toString(), false, packedFile_FIELD_NAME + "Name"+processid);
+        return packedFile;
+    }
     private FileItem createEncryptedFile() {
-        encryptedFile = getOptions().getFileItemFactory().createItem(encryptedFile_FIELD_NAME, ContentType.DEFAULT_BINARY.toString(), false, encryptedFile_FIELD_NAME + "Name");
+        encryptedFile = getOptions().getFileItemFactory().createItem(encryptedFile_FIELD_NAME+processid, ContentType.DEFAULT_BINARY.toString(), false, encryptedFile_FIELD_NAME + "Name"+processid);
         return encryptedFile;
     }
+    private FileItem createCapsuleFile(){
+        capsuleFile = getOptions().getFileItemFactory().createItem(capsuleFile_FIELD_NAME+processid, ContentType.DEFAULT_BINARY.toString(), false, capsuleFile_FIELD_NAME + "Name"+processid);
+        return capsuleFile;
+    }
+
 
     /*任务1，
      * 1.创建主加密密匙
      * 2.加密文件*/
-    public void part1(FileItem uploadedFile) {
+    public void part1(List<FileItem> uploadedFile) {
         try {
-            OutputStream outStream = createEncryptedFile().getOutputStream();
-            // 需要更改
+            //打包
+            FileItem packedFile=createPackedFile();
+            OutputStream os=packedFile.getOutputStream();
 
+            //别在循环里面关流！！！
+            ZipOutputStream zip=new ZipOutputStream(os);
+            for(FileItem subfile:options.getUploadedFiles()){
+
+                String filename=subfile.getName();
+                System.out.println("正在处理文件name="+filename+",info:"+subfile);
+                ZipEntry zipentry=new ZipEntry(filename);
+
+                zip.putNextEntry(zipentry);
+                byte[] buf = new byte[1024];
+                int read;
+                InputStream is = subfile.getInputStream();
+                while ((read = is.read(buf)) != -1) {
+                    zip.write(buf, 0, read);
+                }
+                is.close();
+                zip.finish();
+
+            }
+            zip.close();
+            //创建一个“假”用户，利用里面的加解密方式，以保证加解密的过程一致
             User user=new User();
             user.setPassword(mainPass);
             user.setId(998);
             Cipher cipher=user.getCipher(Cipher.ENCRYPT_MODE);
-
+            //user以加密方式getCipher后，自动生成了salt
+            //这里把salt保存进options里面
             getOptions().setSalt(user.getSalt());
 //            byte k[] = mainPass.getBytes();
 //            SecretKeySpec key = new SecretKeySpec(k, CryptoOptions.TYPE);
 //            Cipher enc = Cipher.getInstance(CryptoOptions.TYPE);
            // enc.init(Cipher.ENCRYPT_MODE, key);
+
+            //创建加密文件
+            FileItem encryptedFile=createEncryptedFile();
+            //获取输出流，准备写入加密数据
+            OutputStream outStream = encryptedFile.getOutputStream();
+            //用CipherOutputStream，输出的时候自动把buff里的东西加密
             CipherOutputStream cos = new CipherOutputStream(outStream, cipher);
             byte[] buf = new byte[1024];
             int read;
-            InputStream is = uploadedFile.getInputStream();
+
+            InputStream is = packedFile.getInputStream();
             while ((read = is.read(buf)) != -1) {
                 cos.write(buf, 0, read);
             }
@@ -74,6 +119,7 @@ private int processid=-999;
             outStream.flush();
             cos.close();
 
+            //测试，不要留
             getOptions().setMainKey(mainPass);
         } catch (Exception e) {
             e.printStackTrace();
@@ -123,7 +169,7 @@ private int processid=-999;
     /*任务3，
      * 1.将加密结果打包并返回给文件工厂。*/
     public void part3(Map<int[], byte[]> map1) {
-        packedFile = getOptions().getFileItemFactory().createItem(packedFile_FIELD_NAME, ContentType.DEFAULT_BINARY.toString(), false, packedFile_FIELD_NAME + "Name");
+
 
         CapsuleStructure capsule=new CapsuleStructure();
         capsule.encryptedFileBytes=encryptedFile.get();
@@ -136,8 +182,9 @@ private int processid=-999;
         String json1 = JSON.toJSONString(capsule);
         //  System.out.println(json1);
         try {
-            packedFile.getOutputStream().write(json1.getBytes(), 0, json1.length());
-            packedFile.write(new File("C:\\Users\\QinHuoBin\\Desktop\\Repository\\encrypt\\123123"));
+            createCapsuleFile();
+            capsuleFile.getOutputStream().write(json1.getBytes(), 0, json1.length());
+            capsuleFile.write(new File("C:\\Users\\QinHuoBin\\Desktop\\Repository\\encrypt\\123123"));
         } catch (Exception e) {
             e.printStackTrace();
             getOptions().setException(e);
@@ -219,7 +266,7 @@ private int processid=-999;
             System.out.println(("人不够！"));
         }
         System.out.println("part0");
-        part1(getOptions().getUploadedFile());
+        part1(getOptions().getUploadedFiles());
         System.out.println("part1");
         part3(part2());
         System.out.println("part3");
@@ -235,7 +282,7 @@ private int processid=-999;
     }
 
     public void addUser(User user) throws Exception {
-        options.addUser(user);
+        options.addUser(user,Cipher.ENCRYPT_MODE);
         System.out.println("加密过程id="+processid+"：添加了用户"+user);
         // 如果人数够了，就进行加密
         if (options.getTotal_users().size() == options.getTotalNum()) {
@@ -243,8 +290,8 @@ private int processid=-999;
         }
     }
 
-    public void setUploadedFile(FileItem file){
-        options.setUploadedFile(file);
+    public void addUploadedFile(FileItem file){
+        options.addUploadedFile(file);
     }
 
     public void setException(Exception e) {
