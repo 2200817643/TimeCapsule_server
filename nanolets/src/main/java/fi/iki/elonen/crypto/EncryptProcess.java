@@ -6,18 +6,19 @@ import fi.iki.elonen.NanoFileUpload;
 import fi.iki.elonen.crypto.CryptoOptions.User;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.http.entity.ContentType;
+import org.apache.tools.zip.ZipEntry;
+import org.apache.tools.zip.ZipOutputStream;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 /**
  * 负责：添加用户，数量够了就开始
@@ -67,25 +68,28 @@ private int processid=-999;
             OutputStream os=packedFile.getOutputStream();
 
             //别在循环里面关流！！！
-            ZipOutputStream zip=new ZipOutputStream(os);
+            //以后不要用java自带的zipoutputstream了
+//            ZipOutputStream zos=new ZipOutputStream(new FileOutputStream(new File("C:\\Users\\QinHuoBin\\Desktop\\Repository\\encrypt\\a\\a.zip")));
+            ZipOutputStream zos=new ZipOutputStream(os);
             for(FileItem subfile:options.getUploadedFiles()){
 
                 String filename=subfile.getName();
                 System.out.println("正在处理文件name="+filename+",info:"+subfile);
-                ZipEntry zipentry=new ZipEntry(filename);
-
-                zip.putNextEntry(zipentry);
+                InputStream is=subfile.getInputStream();
+                ZipEntry entry = new ZipEntry(subfile.getName());
+                zos.putNextEntry(entry);
+                int count;
                 byte[] buf = new byte[1024];
-                int read;
-                InputStream is = subfile.getInputStream();
-                while ((read = is.read(buf)) != -1) {
-                    zip.write(buf, 0, read);
+                while ((count = is.read(buf)) != -1) {
+                    zos.write(buf, 0, count);
                 }
-                is.close();
-                zip.finish();
+
 
             }
-            zip.close();
+            zos.close();
+
+
+
             //创建一个“假”用户，利用里面的加解密方式，以保证加解密的过程一致
             User user=new User();
             user.setPassword(mainPass);

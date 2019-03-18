@@ -95,9 +95,11 @@ public class UploadHandler extends DefaultStreamHandler {
                 FileItemIterator iter = uploader.getItemIterator(session);
                 while (iter.hasNext()) {
                     FileItemStream item = iter.next();
-                    if(!item.getFieldName().equalsIgnoreCase("uploadingfiles")){
+                    //如果参与者没选择文件，就会上传一个文件名为空的文件
+                    if(!(item.getFieldName().equalsIgnoreCase("uploadingfiles"))||item.getName().isEmpty()){
                         continue;
                     }
+
                     String fileName = item.getName();
                     FileItem fileItem = uploader.getFileItemFactory().createItem(item.getFieldName(), item.getContentType(), item.isFormField(), fileName);
 
@@ -127,6 +129,7 @@ public class UploadHandler extends DefaultStreamHandler {
                    }
                }
                 dp.setCapsuleFile(capsuleFile);
+               dp.options.setCapsulename(capsuleFile.getName());
                 dp.setUploader(uploader);
 
                 //解析，使totaluser之类的出来，才能加用户

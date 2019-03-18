@@ -6,18 +6,17 @@ import fi.iki.elonen.NanoFileUpload;
 import fi.iki.elonen.crypto.CryptoOptions.User;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.http.entity.ContentType;
+import org.apache.tools.zip.ZipEntry;
+import org.apache.tools.zip.ZipFile;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.CipherOutputStream;
 import javax.crypto.IllegalBlockSizeException;
 import java.io.File;
+import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.zip.ZipEntry;
+import java.util.*;
 import java.util.zip.ZipInputStream;
 
 /**
@@ -135,7 +134,7 @@ public class DecryptProcess extends Thread {
     }
 
     private FileItem createSubFile(String filename) {
-        return options.getFileItemFactory().createItem(processid+":"+filename, ContentType.DEFAULT_BINARY.toString(), false, processid+":"+filename);
+        return options.getFileItemFactory().createItem(processid+"_"+filename, ContentType.DEFAULT_BINARY.toString(), false, processid+"_"+filename);
     }
 
     /**
@@ -171,31 +170,38 @@ public class DecryptProcess extends Thread {
             //cos.write(b,0,b.length);
             //cos.write(buf,0,read);
             //is.close();
-
-
             //对压缩文件中每一个条目进行解压，即为原来的文件
             byte[] buf = new byte[1024];
             int read;
             List<FileItem> originalfiles=new ArrayList<>();
-            ZipInputStream zis=new ZipInputStream(decryptedFile.getInputStream());
-            ZipEntry entry;
-            while((entry=zis.getNextEntry())!=null){
+
+            File tmp=new File("C:\\Users\\QinHuoBin\\Desktop\\Repository\\encrypt\\a\\"+options.getCapsulename());
+            // 将解密后的压缩包先写进一个文件里，这是ZipFile的要求
+            decryptedFile.write(tmp);
+            ZipFile zf=new ZipFile(tmp);
+           Enumeration<ZipEntry> entries=zf.getEntries();
+
+            while(entries.hasMoreElements()){
+                ZipEntry entry=entries.nextElement();
                 String filename=entry.getName();
                 FileItem subfile=createSubFile(filename);
 
+                InputStream in=zf.getInputStream(entry);
                 OutputStream os=subfile.getOutputStream();
-                while((read=zis.read(buf,0,1024))!=-1){
+                while((read=in.read(buf,0,1024))!=-1){
                     os.write(buf,0,read);
                 }
                 os.flush();
-                os.close();
+               // os.close();
                 originalfiles.add(subfile);
             }
 
             //问题：这里只有一个文件
            for(FileItem subfile:originalfiles){
                System.out.println("子文件名称："+subfile.getName());
-               subfile.write(new File("C:\\Users\\QinHuoBin\\Desktop\\Repository\\encrypt\\a\\"+subfile.getName()));
+               File f=new File("C:\\Users\\QinHuoBin\\Desktop\\Repository\\encrypt\\a\\"+subfile.getName());
+             //  f.createNewFile();
+               subfile.write(f);
                System.out.println(subfile.isInMemory());
            }
         } catch (Exception e) {
