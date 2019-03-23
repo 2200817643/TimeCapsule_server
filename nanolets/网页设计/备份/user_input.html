@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Untitled Page</title>
+<meta name="generator" content="WYSIWYG Web Builder 14 - http://www.wysiwygwebbuilder.com">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="default/jquery.mobile.theme-1.4.5.css" rel="stylesheet">
+<link href="default/jquery.mobile.icons-1.4.5.min.css" rel="stylesheet">
+<link href="jquery.mobile.structure-1.4.5.min.css" rel="stylesheet">
+<link href="Untitled1_mobile.css" rel="stylesheet">
+<link href="user_input.css" rel="stylesheet">
+<script src="jquery-1.12.4.min.js"></script>
+<script>
+$(document).on("mobileinit", function()
+{
+   $.mobile.ajaxEnabled = false;
+});
+</script>
+<script src="jquery.mobile-1.4.5.min.js"></script>
+</head>
+<body>
+<div data-role="page" data-theme="a" data-title="Untitled Page" id="user_input">
+<div data-role="header" id="Header1">
+<h1>请输入您的信息</h1>
+</div>
+<div class="ui-content" role="main">
+<div id="wb_Form1" style="">
+<form name="Form1" method="get" action="http://127.0.0.1:9090/addEncryptionUser"  target="_self" data-ajax="false" id="Form1" style="display:inline;">
+<label for="Editbox1">用户名</label>
+<input type="text" id="Editbox1" style="" name="username" value="" spellcheck="false">
+<label for="Editbox2">密码</label>
+<input type="text" id="Editbox2" style="" name="password" value="" spellcheck="false">
+<input type="text" id="doAction" style="" name="doAction" value="true" spellcheck="false" hidden="true">
+<input type="submit" id="Button1" name="" value="确定">
+</form>
+</div>
+</div>
+</div>
+</body>
+</html>

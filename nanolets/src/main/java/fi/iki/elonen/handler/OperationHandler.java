@@ -1,21 +1,24 @@
 package fi.iki.elonen.handler;
 
 import fi.iki.elonen.AppNanolets;
+import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoHTTPD.IHTTPSession;
 import fi.iki.elonen.NanoHTTPD.Response;
 import fi.iki.elonen.crypto.CryptoOptions;
 import fi.iki.elonen.crypto.DecryptProcess;
 import fi.iki.elonen.crypto.EncryptProcess;
 import fi.iki.elonen.router.RouterNanoHTTPD;
+import fi.iki.elonen.router.RouterNanoHTTPD.StaticPageHandler;
 import fi.iki.elonen.router.RouterNanoHTTPD.UriResource;
 import org.apache.commons.fileupload.FileItem;
 
 import javax.crypto.Cipher;
+import java.io.ByteArrayInputStream;
 import java.util.Map;
 
 import static fi.iki.elonen.NanoHTTPD.newFixedLengthResponse;
 
-public class OperationHandler extends RouterNanoHTTPD.StaticPageHandler {
+public class OperationHandler extends StaticPageHandler {
     String a ="<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n" +
             "<html xmlns=\"http://www.w3.org/1999/xhtml\">\n" +
             "<head>\n" +
@@ -65,7 +68,7 @@ public class OperationHandler extends RouterNanoHTTPD.StaticPageHandler {
     @Override
     public Response get(UriResource uriResource, Map<String, String> urlParams, IHTTPSession session) {
         Map<String, String> params = session.getParms();
-        System.out.println("有请求_OperationHandler");
+       // System.out.println("有请求_OperationHandler");
 
         if (params.getOrDefault("doAction", "false").equalsIgnoreCase("false")) {
             return super.get(uriResource, urlParams, session);
@@ -81,12 +84,14 @@ public class OperationHandler extends RouterNanoHTTPD.StaticPageHandler {
             AppNanolets.instance.addEncryptProcess(ep);
 
             // 注意，一定要先加入再获取id!
-            return url_page("../user/addEncryptionUser.html?processid=" + ep.getProcessid());
+           // return url_page("../user/addEncryptionUser.html?processid=" + ep.getProcessid());
+            return NanoHTTPD.newChunkedResponse(getStatus(),"text/plain",new ByteArrayInputStream(String.valueOf(ep.getProcessid()).getBytes()));
 
             //解密的过程在upload里面创建，因为它一开始就上传
         } else if (session.getUri().contains("unpack")) {
 // 特别地，解密的过程id由客户端创建
-            return url_page("../user/addDecryptionUser.html?processid=" + params.get("processid"));
+           // return url_page("../user/addDecryptionUser.html?processid=" + params.get("processid"));
+            return super.get(uriResource, urlParams, session);
         }
 
         return super.get(uriResource, urlParams, session);

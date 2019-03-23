@@ -3,10 +3,7 @@ package fi.iki.elonen;
 
 import fi.iki.elonen.crypto.DecryptProcess;
 import fi.iki.elonen.crypto.EncryptProcess;
-import fi.iki.elonen.handler.DownloadHandler;
-import fi.iki.elonen.handler.OperationHandler;
-import fi.iki.elonen.handler.UploadHandler;
-import fi.iki.elonen.handler.UserHandler;
+import fi.iki.elonen.handler.*;
 import fi.iki.elonen.router.RouterNanoHTTPD;
 import fi.iki.elonen.util.ServerRunner;
 
@@ -48,14 +45,16 @@ public class AppNanolets extends RouterNanoHTTPD {
         super.addMappings();
         addRoute("/upload", UploadHandler.class);
         addRoute("/operation/(.)+", OperationHandler.class, new File(
-                "C:\\Users\\QinHuoBin\\Desktop\\网页设计\\OperationHandler\\").getAbsoluteFile());
-        addRoute("/download/(.)+", DownloadHandler.class);
+                "C:\\Users\\QinHuoBin\\Desktop\\项目\\nanohttpd-nanohttpd-project-2.3.1\\nanolets\\网页设计\\OperationHandler\\").getAbsoluteFile());
+        addRoute("/download", DownloadHandler.class);
          addRoute("/user/(.)+", UserHandler.class,new File(
-                 "C:\\Users\\QinHuoBin\\Desktop\\网页设计\\UserHandler\\").getAbsoluteFile());
+                 "C:\\Users\\QinHuoBin\\Desktop\\项目\\nanohttpd-nanohttpd-project-2.3.1\\nanolets\\网页设计\\UserHandler\\").getAbsoluteFile());
 
 
          addRoute("/default/(.)+",StaticPageHandler.class,new File(
-                 "C:\\Users\\QinHuoBin\\Desktop\\网页设计\\default\\").getAbsoluteFile());
+                 "C:\\Users\\QinHuoBin\\Desktop\\项目\\nanohttpd-nanohttpd-project-2.3.1\\nanolets\\网页设计\\default\\").getAbsoluteFile());
+         addRoute("/qrcode", QRCodeHandler.class);
+         addRoute("/status",StatusHandler.class);
 //        addRoute("/user", UserHandler.class); // add it twice to execute the
 //                                              // priority == priority case
 //        addRoute("/user/help", GeneralHandler.class);

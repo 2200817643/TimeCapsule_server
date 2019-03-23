@@ -17,7 +17,6 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.*;
-import java.util.zip.ZipInputStream;
 
 /**
  * 该类要完成的任务：
@@ -196,7 +195,6 @@ public class DecryptProcess extends Thread {
                 originalfiles.add(subfile);
             }
 
-            //问题：这里只有一个文件
            for(FileItem subfile:originalfiles){
                System.out.println("子文件名称："+subfile.getName());
                File f=new File("C:\\Users\\QinHuoBin\\Desktop\\Repository\\encrypt\\a\\"+subfile.getName());
@@ -244,5 +242,9 @@ public class DecryptProcess extends Thread {
 
     public void setProcessid(int processid) {
         this.processid = processid;
+    }
+
+    public CryptoOptions getOptions() {
+        return options;
     }
 }

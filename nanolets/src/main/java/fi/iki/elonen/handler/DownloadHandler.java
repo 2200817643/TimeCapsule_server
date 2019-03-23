@@ -19,9 +19,10 @@ public class DownloadHandler extends RouterNanoHTTPD.DefaultStreamHandler {
         String mimeTypeForFile = NanoHTTPD.getMimeTypeForFile(uriResource.getUri());
 
         Map<String, String> header = session.getHeaders();
+        Map<String, String> params=session.getParms();
 //        session.getUri();
 //        session.getMethod();
-        return serveFile(header, new File("C:\\Users\\QinHuoBin\\Desktop\\Repository\\crypto\\",urlParams.get("filename")), mimeTypeForFile);
+        return serveFile(header, new File("C:\\Users\\QinHuoBin\\Desktop\\Repository\\encrypt\\",params.get("processid")), mimeTypeForFile);
         //return getForbiddenResponse("123");
     }
 
@@ -122,6 +123,7 @@ public class DownloadHandler extends RouterNanoHTTPD.DefaultStreamHandler {
                 }
             }
         } catch (IOException ioe) {
+            ioe.printStackTrace();
             res = getForbiddenResponse("Reading file failed.");
         }
         try {

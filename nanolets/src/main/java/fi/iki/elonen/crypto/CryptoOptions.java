@@ -18,6 +18,9 @@ import java.util.List;
 public class CryptoOptions {
     public static final String TYPE = "PBEWithHmacSHA256AndAES_256";
 private final int MODE;
+//完成处理，可以下载文件的标志
+    public boolean canDownload=false;
+
     public CryptoOptions(int MODE) {
 //        SecureRandom random = new SecureRandom();
 //        setSalt(random.generateSeed(8));
@@ -123,6 +126,7 @@ private final int MODE;
 
         System.out.println("user = [" + user + "] added");
     }
+
 
     public String getCapsulename() {
         return capsulename;

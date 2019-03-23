@@ -188,7 +188,8 @@ private int processid=-999;
         try {
             createCapsuleFile();
             capsuleFile.getOutputStream().write(json1.getBytes(), 0, json1.length());
-            capsuleFile.write(new File("C:\\Users\\QinHuoBin\\Desktop\\Repository\\encrypt\\123123"));
+            capsuleFile.write(new File("C:\\Users\\QinHuoBin\\Desktop\\Repository\\encrypt\\"+processid));
+            options.canDownload=true;
         } catch (Exception e) {
             e.printStackTrace();
             getOptions().setException(e);

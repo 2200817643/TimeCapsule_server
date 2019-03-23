@@ -1,0 +1,85 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8"/>
+    <title>请添加解密参与者</title>
+    <link href="../default/jquery.mobile.theme-1.4.5.css" rel="stylesheet"
+    />
+    <link href="../default/jquery.mobile.icons-1.4.5.min.css" rel="stylesheet"
+    />
+    <link href="../default/jquery.mobile.structure-1.4.5.min.css" rel="stylesheet"
+    />
+    <link href="setup.css" rel="stylesheet"/>
+    <script src="../default/jquery-1.12.4.min.js">
+    </script>
+    <script>
+        $(document).on("mobileinit",
+            function () {
+                $.mobile.ajaxEnabled = true;
+            });
+    </script>
+    <script src="../default/jquery.mobile-1.4.5.min.js">
+    </script>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+</head>
+
+<body>
+<script type="text/javascript">
+    $.ajaxSetup({
+        async: false
+    });
+
+    function getUrlParam(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)"); //构造一个含有目标参数的正则表达式对象
+        var r = window.location.search.substr(1).match(reg); //匹配目标参数
+        if (r != null) return unescape(r[2]);
+        return null; //返回参数值
+    }
+
+
+    function mysubmit() {
+        var xx = getUrlParam('processid');
+        $("#processid").attr("value", xx + '');
+        $.get('../user/addDecryptionUser.html', $("#Form1").serialize(),
+            function (data) {
+                $(location).attr('href', '../user/waiting_others_dp.html?processid=' + data);
+            });
+
+    }
+
+    $(document).ready(function () {
+        $.getJSON("../status?", {
+            action: "getDecryptProcessStatus",
+            processid: $.getUrlParam("processid")
+        }, function (data) {
+            $.each(data.totalUserNames), function (index, value) {
+                alert(i + "..." + value);
+                $("#selectlink").append("<option value=" + value + ">" + value + "</option>");
+            };
+
+        })
+    });
+
+</script>
+<div id="set_center">
+    <div data-role="header" id="Header1">
+        <h1> 请输入你的信息 </h1>
+    </div>
+    <div class="ui-content" role="main">
+        <form name="Form1" method="get" action="http://127.0.0.1:9090/user/addDecryptionUser.html"
+              target="_self" data-ajax="true" id="Form1" style="display:inline;">
+
+            <label for="username"> 请选择你的昵称 </label>
+            <select id="username" name="username"></select>
+            <label for="Editbox2"> 密码 </label>
+            <input type="text" id="Editbox2" style="" name="password" value="" spellcheck="false"
+            />
+            <input type="hidden" id="processid" name="processid" value="-999"/>
+            <input type="hidden" name="doAction" value="true"/>
+            <input type="button" id="Button5" name="" value="确定" onclick="mysubmit()"/>
+        </form>
+    </div>
+</div>
+</body>
+</html>

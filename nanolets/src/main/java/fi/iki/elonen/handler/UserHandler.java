@@ -77,7 +77,7 @@ public class UserHandler extends StaticPageHandler {
     public Response get(UriResource uriResource, Map<String, String> urlParams, IHTTPSession session) {
         Map<String, String> params = session.getParms();
 
-        System.out.println("有请求_UserHandler");
+       // System.out.println("有请求_UserHandler");
         if (params.getOrDefault("doAction", "false").equalsIgnoreCase("false")) {
             return super.get(uriResource, urlParams, session);
         }
