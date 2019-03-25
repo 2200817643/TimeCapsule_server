@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 public class CapsuleStructure {
+    public String capsulename;
     public byte[] encryptedFileBytes;
     public List<User> totalUsers;
     public int leastNum;

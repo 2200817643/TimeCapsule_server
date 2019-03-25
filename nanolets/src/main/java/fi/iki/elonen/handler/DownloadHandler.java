@@ -6,6 +6,7 @@ import fi.iki.elonen.NanoHTTPD.Response.IStatus;
 import fi.iki.elonen.router.RouterNanoHTTPD;
 
 import java.io.*;
+import java.net.URLEncoder;
 import java.util.Map;
 
 /**
@@ -22,7 +23,13 @@ public class DownloadHandler extends RouterNanoHTTPD.DefaultStreamHandler {
         Map<String, String> params=session.getParms();
 //        session.getUri();
 //        session.getMethod();
-        return serveFile(header, new File("C:\\Users\\QinHuoBin\\Desktop\\Repository\\encrypt\\",params.get("processid")), mimeTypeForFile);
+
+        if(params.get("action").equalsIgnoreCase("ep")){//下载的是加密后的时间胶囊文件
+            return serveFile(header, new File("C:\\Users\\QinHuoBin\\Desktop\\Repository\\encrypt\\",params.get("processid")), mimeTypeForFile);
+        }else{
+            return serveFile(header, new File("C:\\Users\\QinHuoBin\\Desktop\\Repository\\decrypt\\",params.get("processid")+".zip"), mimeTypeForFile);
+        }
+
         //return getForbiddenResponse("123");
     }
 
@@ -93,6 +100,7 @@ public class DownloadHandler extends RouterNanoHTTPD.DefaultStreamHandler {
                     res.addHeader("Content-Length", "" + newLen);
                     res.addHeader("Content-Range", "bytes " + startFrom + "-" + endAt + "/" + fileLen);
                     res.addHeader("ETag", etag);
+                    res.addHeader("content-disposition", "attachment;filename=" + URLEncoder.encode(file.getName(), "utf-8"));
                 }
             } else {
 
@@ -127,6 +135,7 @@ public class DownloadHandler extends RouterNanoHTTPD.DefaultStreamHandler {
             res = getForbiddenResponse("Reading file failed.");
         }
         try {
+
             System.out.println(res.getData().available());
         } catch (IOException e) {
             e.printStackTrace();

@@ -16,7 +16,7 @@
     <script>
         $(document).on("mobileinit",
             function () {
-                $.mobile.ajaxEnabled = true;
+                $.mobile.ajaxEnabled = false;
             });
     </script>
     <script src="../default/jquery.mobile-1.4.5.min.js">
@@ -26,20 +26,17 @@
 
 <body>
 <script type="text/javascript">
-    $.ajaxSetup({
-        async: false
-    });
-
-    function getUrlParam(name) {
-        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)"); //构造一个含有目标参数的正则表达式对象
-        var r = window.location.search.substr(1).match(reg); //匹配目标参数
-        if (r != null) return unescape(r[2]);
-        return null; //返回参数值
-    }
-
+    (function ($) {
+        $.getUrlParam = function (name) {
+            var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+            var r = window.location.search.substr(1).match(reg);
+            if (r != null) return unescape(r[2]);
+            return null;
+        }
+    })(jQuery);
 
     function mysubmit() {
-        var xx = getUrlParam('processid');
+        var xx = $.getUrlParam('processid');
         $("#processid").attr("value", xx + '');
         $.get('../user/addDecryptionUser.html', $("#Form1").serialize(),
             function (data) {
@@ -53,11 +50,12 @@
             action: "getDecryptProcessStatus",
             processid: $.getUrlParam("processid")
         }, function (data) {
-            $.each(data.totalUserNames), function (index, value) {
-                alert(i + "..." + value);
-                $("#selectlink").append("<option value=" + value + ">" + value + "</option>");
-            };
-
+            $.each(data.totalUserNames, function (index, value) {
+                alert(index + "..." + value);
+                $("#username").append("<option value=" + value + ">" + value + "</option>");
+            })
+            //刷新一下，否则不会显示
+            $("#username").selectmenu('refresh', true);
         })
     });
 
@@ -71,7 +69,7 @@
               target="_self" data-ajax="true" id="Form1" style="display:inline;">
 
             <label for="username"> 请选择你的昵称 </label>
-            <select id="username" name="username"></select>
+            <select id="username" name="username" autofocus></select>
             <label for="Editbox2"> 密码 </label>
             <input type="text" id="Editbox2" style="" name="password" value="" spellcheck="false"
             />

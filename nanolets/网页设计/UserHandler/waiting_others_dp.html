@@ -10,7 +10,7 @@
     <script src="../default/jquery-1.12.4.min.js"></script>
     <script>
         $(document).on("mobileinit", function () {
-            $.mobile.ajaxEnabled = true;
+            $.mobile.ajaxEnabled = false;
         });
     </script>
     <script src="../default/jquery.mobile-1.4.5.min.js"></script>
@@ -25,10 +25,10 @@
 
     </div-->
     <p id="capsulename">正在获取</p>
-    <p id="total">正在获取</p>
-    <p id="completed">正在获取</p>
-    <p id="uncompleted">正在获取</p>
-    <p>id</p>
+    <p id="totalNum">正在获取</p>
+    <p id="completedNum">正在获取</p>
+    <p id="uncompletedNum">正在获取</p>
+    <img id="qrcode">
 
     <script>
         (function ($) {
@@ -39,16 +39,41 @@
                 return null;
             }
         })(jQuery);
-        $.getJSON("../status?", {
-            action: "getDecryptProcessStatus",
-            processid: $.getUrlParam("processid")
-        }, function (data) {
-            $("#capsulename").text("胶囊名称：" + data.capsulename);
-            $("#totalNum").text("总参与者人数：" + data.totalNum);
-            $("#leastNum").text("最少解密者人数：" + data.leastNum);
-            $("#completedNum").text("已经完成输入的人数：" + data.completedNum);
-            $("#completedUsers").text("已经完成输入的参与者：" + data.completedUsers);
-        })
+        $(document).ready(function () {
+            $.getJSON("../qrcode?action=share_to_dp&processid=" + $.getUrlParam("processid"), function (data) {
+                $("#qrcode").attr("src", data.src);
+              //  $("#href").attr("href", data.contect);
+            })
+        });
+
+        function shuaxin() {
+            $.getJSON("../status?", {
+                action: "getDecryptProcessStatus",
+                processid: $.getUrlParam("processid")
+            }, function (data) {
+                $("#capsulename").text("胶囊名称：" + data.capsulename);
+                $("#totalNum").text("总参与者人数：" + data.totalNum);
+                $("#leastNum").text("最少解密者人数：" + data.leastNum);
+                $("#completedNum").text("参加解密的人数：" + data.completedNum);
+                if ((data.totalNum - data.completedNum) == 0) {
+                    $("#qrcode").attr("src","");
+                    $("#uncompletedNum").html("<h1>已经全部输入完毕，正在为您解封胶囊...</h1>");
+                    $("#header_1").text("正在解封胶囊...")
+                } else {
+                    $("#uncompletedNum").text("还剩余" + (data.totalNum - data.completedNum) + "人");
+                }
+                if (data.canDownload) {
+                    setTimeout(function(){
+                    $(location).attr('href', '../operation/download_file.html?processid=' + $.getUrlParam("processid")+"&capsulename="+encodeURI(encodeURI(data.capsulename)));
+                    },1000)
+                }
+
+            })
+        }
+
+        var t = setInterval(shuaxin, 1000);
+
+
     </script>
 </div>
 </body>

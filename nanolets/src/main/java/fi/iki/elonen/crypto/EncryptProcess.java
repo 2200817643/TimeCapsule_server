@@ -11,10 +11,7 @@ import org.apache.tools.zip.ZipOutputStream;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -181,13 +178,19 @@ private int processid=-999;
         capsule.leastNum= getOptions().getLeastNum();
         capsule.salt= getOptions().getSalt();
         capsule.subsets=map1;
+        capsule.capsulename=options.getCapsulename();
 
 
         String json1 = JSON.toJSONString(capsule);
         //  System.out.println(json1);
         try {
             createCapsuleFile();
-            capsuleFile.getOutputStream().write(json1.getBytes(), 0, json1.length());
+            PrintWriter writer =new PrintWriter( capsuleFile.getOutputStream());
+            //不可将string直接转为bytes！这会丢失字节
+
+            writer.print(json1);
+            writer.flush();
+            writer.close();
             capsuleFile.write(new File("C:\\Users\\QinHuoBin\\Desktop\\Repository\\encrypt\\"+processid));
             options.canDownload=true;
         } catch (Exception e) {
@@ -291,7 +294,9 @@ private int processid=-999;
         System.out.println("加密过程id="+processid+"：添加了用户"+user);
         // 如果人数够了，就进行加密
         if (options.getTotal_users().size() == options.getTotalNum()) {
+            System.out.println("开始加密");
             this.start();
+            System.out.println("立即");
         }
     }
 

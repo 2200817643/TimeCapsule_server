@@ -2,20 +2,20 @@ package fi.iki.elonen.handler;
 
 import com.alibaba.fastjson.JSONObject;
 import com.google.zxing.WriterException;
+import fi.iki.elonen.AppNanolets;
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoHTTPD.IHTTPSession;
 import fi.iki.elonen.NanoHTTPD.Response.IStatus;
 import fi.iki.elonen.NanoHTTPD.Response.Status;
 import fi.iki.elonen.Util.QRCodeUtil;
+import fi.iki.elonen.crypto.DecryptProcess;
+import fi.iki.elonen.crypto.EncryptProcess;
 import fi.iki.elonen.router.RouterNanoHTTPD.DefaultStreamHandler;
 import fi.iki.elonen.router.RouterNanoHTTPD.UriResource;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
@@ -26,25 +26,29 @@ public class QRCodeHandler extends DefaultStreamHandler {
     public NanoHTTPD.Response get(UriResource uriResource, Map<String, String> urlParams, IHTTPSession session) {
 
         System.out.println(session.getUri());
-        Map<String, String> params=session.getParms();
-        int processid=Integer.valueOf(params.get("processid"));
+        Map<String, String> params = session.getParms();
+        int processid = Integer.valueOf(params.get("processid"));
 
-        String contect="";
-        if(params.get("action").equalsIgnoreCase("share_to_ep")){
-            contect="../user/addEncryptionUser.html?processid="+processid;
-        }else{
-            contect="../user/addDecryptionUser.html?processid="+processid;
+        String contect = "";
+        if (params.get("action").equalsIgnoreCase("share_to_ep")) {
+            EncryptProcess ep = AppNanolets.instance.getEncryptProcess(processid);
+            contect = "../user/addEncryptionUser.html?processid=" + processid ;
+        } else {
+            DecryptProcess dp = AppNanolets.instance.getDecryptProcess(processid);
+            contect = "../user/addDecryptionUser.html?processid=" + processid ;
         }
 
+
         try {
-            BufferedImage image = QRCodeUtil.createImage(contect, "", false);
+            //TODO:不用修改
+            BufferedImage image = QRCodeUtil.createImage(AppNanolets.url+"/user/addDecryptionUser.html?processid=" + processid, "", false);
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ImageIO.write(image, QRCodeUtil.FORMAT_NAME, baos);
             String src = "data:image/jpg;base64," + Base64.getEncoder().encodeToString(baos.toByteArray());
 
-            JSONObject json=new JSONObject();
-            json.put("src",src);
-            json.put("contect",contect);
+            JSONObject json = new JSONObject();
+            json.put("src", src);
+            json.put("contect", contect);
             return NanoHTTPD.newChunkedResponse(getStatus(), getMimeType(), new ByteArrayInputStream(json.toJSONString().getBytes()));
         } catch (WriterException e) {
             e.printStackTrace();
@@ -53,15 +57,13 @@ public class QRCodeHandler extends DefaultStreamHandler {
         }
 
 
-
         return null;
 
     }
 
     /**
      * 废弃不用
-     *
-     * */
+     */
     @Override
     public NanoHTTPD.Response post(UriResource uriResource, Map<String, String> urlParams, IHTTPSession session) {
         try {

@@ -1,67 +1,69 @@
 <!DOCTYPE html>
 <html>
- <head> 
-  <meta charset="utf-8" /> 
-  <title>请设置胶囊信息</title> 
-  <link href="../default/jquery.mobile.theme-1.4.5.css" rel="stylesheet" /> 
-  <link href="../default/jquery.mobile.icons-1.4.5.min.css" rel="stylesheet" /> 
-  <link href="../default/jquery.mobile.structure-1.4.5.min.css" rel="stylesheet" /> 
-  <link href="setup.css" rel="stylesheet" /> 
-  <script src="../default/jquery-1.12.4.min.js"></script> 
-  <script>
-$(document).on("mobileinit", function()
-{
-   $.mobile.ajaxEnabled = true;
-});
-</script> 
-  <script src="../default/jquery.mobile-1.4.5.min.js"></script> 
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
- </head> 
- <body>
- <script>
-  $(document).ready(function(){
-   $("#Form1").submit(function(e){
-    e.preventDefault();
-    $.get("../operation/setup",$("#Form1").serialize(),function (data,status) {
-     $(location).attr('href', '../operation/share_by_qrcode.html?processid=' + data);
-    })
-   });
-  });
+<head>
+    <meta charset="utf-8"/>
+    <title>请设置胶囊信息</title>
+    <link href="../default/jquery.mobile.theme-1.4.5.css" rel="stylesheet"/>
+    <link href="../default/jquery.mobile.icons-1.4.5.min.css" rel="stylesheet"/>
+    <link href="../default/jquery.mobile.structure-1.4.5.min.css" rel="stylesheet"/>
+    <link href="setup.css" rel="stylesheet"/>
+    <script src="../default/jquery-1.12.4.min.js"></script>
+    <script>
+        $(document).on("mobileinit", function () {
+            $.mobile.ajaxEnabled = false;
+        });
+    </script>
+    <script src="../default/jquery.mobile-1.4.5.min.js"></script>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+</head>
+<body>
+<script>
+    $(document).ready(function () {
+        $("#Form1").submit(function (e) {
+            e.preventDefault();
+            $.get("../operation/setup", $("#Form1").serialize(), function (data, status) {
+                $(location).attr('href', '../operation/share_by_qrcode.html?processid=' + data);
+            })
+        });
+    });
 
 
- </script>
-  <div data-role="page" data-theme="a" data-title="Untitled Page" id="set_center">
-   <div data-role="header" id="Header1">
-    <h1>请设置胶囊信息</h1>
-   </div>
-   <div class="ui-content" role="main"> 
-    <div id="wb_Form1" style=""> 
-     <form name="Form1" method="get" action="../operation/setup" target="_self" data-ajax="false" id="Form1" style="display:inline;"> 
-      <label for="Editbox1">胶囊名称</label> 
-      <input type="text" id="Editbox1" style="" name="capsulename" value="" spellcheck="false" /> 
-      <label for="Editbox2">总参与人数</label> 
-      <input type="text" id="Editbox2" style="" name="totalnum" value="" spellcheck="false" /> 
-      <label for="Editbox3">最少解密人数</label> 
-      <input type="text" id="Editbox3" style="" name="leastnum" value="" spellcheck="false" /> 
-      <label for="Editbox4">预定解密日期</label> 
-      <input type="date" id="Editbox4" style="" name="reservedate" value="" spellcheck="false" /> 
-      <label for="Editbox5">胶囊加密方式</label> 
-      <select> <option value="AES-256">AES-256</option> </select> 
-      <br /> 
-      <hr /> 
-      <label>其他设置</label> 
-      <hr /> 
-      <label >将胶囊寄存在远端服务器上</label>
-      <input name="remote" type="radio" checked="checked" />是
-      <input name="sex" type="radio" />否 
-      <label >允许参与者自定义加密方式</label>
-      <input name="sex1" type="radio" checked="checked" />是 
-      <input name="sex1" type="radio" />否
-      <input type="hidden" name="doAction" value="true" /> 
-      <input type="submit" id="Button5" name="" value="确定" /> 
-     </form> 
-    </div> 
-   </div> 
-  </div>  
- </body>
+</script>
+<div data-role="page" data-theme="a" data-title="Untitled Page" id="set_center">
+    <div data-role="header" id="Header1">
+        <h1>请设置胶囊信息</h1>
+    </div>
+    <div class="ui-content" role="main">
+        <div id="wb_Form1" style="">
+            <form name="Form1" method="get" action="../operation/setup" target="_self" data-ajax="false" id="Form1"
+                  style="display:inline;">
+                <label for="Editbox1">胶囊名称</label>
+                <input type="text" id="Editbox1" style="" name="capsulename" value="" spellcheck="false"/>
+                <label for="Editbox2">总参与人数</label>
+                <input type="text" id="Editbox2" style="" name="totalnum" value="" spellcheck="false"/>
+                <label for="Editbox3">最少解密人数</label>
+                <input type="text" id="Editbox3" style="" name="leastnum" value="" spellcheck="false"/>
+                <label for="Editbox4">预定解密日期</label>
+                <input type="date" id="Editbox4" style="" name="reservedate" value="" spellcheck="false"/>
+                <label for="Editbox5">胶囊加密方式</label>
+                <select>
+                    <option value="AES-256">AES-256</option>
+                </select>
+                <br/>
+                <hr/>
+                <label>其他设置</label>
+                <hr/>
+                <label>将胶囊寄存在远端服务器上</label>
+                <input name="remote" type="radio" checked="checked"/>是
+                <input name="sex" type="radio"/>否
+                <label>允许参与者自定义加密方式</label>
+                <input name="sex1" type="radio" checked="checked"/>是
+                <input name="sex1" type="radio"/>否
+                <input type="hidden" name="doAction" value="true"/>
+                <input type="submit" id="Button5" name="" value="确定"/>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
 </html>

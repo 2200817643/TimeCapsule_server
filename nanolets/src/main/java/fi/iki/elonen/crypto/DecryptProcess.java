@@ -75,6 +75,7 @@ public class DecryptProcess extends Thread {
         options.setTotal_users(totalUsers);
         options.setTotalNum(totalUsers.size());
         options.setLeastNum(capsule.leastNum);
+        options.setCapsulename(capsule.capsulename);
     }
     /**
      * 1.得到解密密码
@@ -174,7 +175,7 @@ public class DecryptProcess extends Thread {
             int read;
             List<FileItem> originalfiles=new ArrayList<>();
 
-            File tmp=new File("C:\\Users\\QinHuoBin\\Desktop\\Repository\\encrypt\\a\\"+options.getCapsulename());
+            File tmp=new File("C:\\Users\\QinHuoBin\\Desktop\\Repository\\decrypt\\"+processid+".zip");
             // 将解密后的压缩包先写进一个文件里，这是ZipFile的要求
             decryptedFile.write(tmp);
             ZipFile zf=new ZipFile(tmp);
@@ -202,6 +203,7 @@ public class DecryptProcess extends Thread {
                subfile.write(f);
                System.out.println(subfile.isInMemory());
            }
+           options.canDownload=true;
         } catch (Exception e) {
             e.printStackTrace();
         }

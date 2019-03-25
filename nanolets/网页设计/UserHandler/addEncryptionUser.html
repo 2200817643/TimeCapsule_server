@@ -76,10 +76,16 @@
             <label for="Editbox1">你的昵称</label>
             <input type="text" id="Editbox1" style="" name="username" value="" spellcheck="false"/>
             <label for="Editbox2">密码</label>
-            <input type="text" id="Editbox2" style="" name="password" value="" spellcheck="false"/>
+            <input type="password" id="Editbox2" style="" name="password" value="" spellcheck="false"/>
+            <label for="Editbox2">电话（可选）</label>
+            <input type="text" id="Editbox3" style="" name="tel" value="" spellcheck="false"/>
+            <label for="Editbox2">邮箱（可选）</label>
+            <input type="text" id="Editbox4" style="" name="mail" value="" spellcheck="false"/>
             <label for="uploadingfiles">请添加要封存的文件</label>
             <input type="file" id="uploadingfiles" name="uploadingfiles" multiple="multiple"/>
             <br>
+
+
             <input type="hidden" id="processid" name="processid" value="-999"/>
             <input type="hidden" name="doAction" value="true"/>
             <input type="button" id="Button5" name="" value="确定" onclick="mysubmit()"/>
