@@ -25,14 +25,29 @@
 
 <body>
 <script>
+    $(document).ready(function () {
+        $("#Button5").click(function () {
+            $(this).attr({"disabled":"disabled"});
+            mysubmit();
+        });
+    })
+
+	
+	$(this).keydown( function(e) {
+    var key = window.event?e.keyCode:e.which;
+    if(key.toString() == "13"){
+        return false;
+    }
+});
 
     function mysubmit() {
         $.ajaxSetup({
             async: false
         });
 
-//Math.random()*(上限-下限+1)+下限 
-        var i = parseInt(Math.random() * (999 - 0 + 1) + 0);
+//Math.random()*(上限-下限+1)+下限 99576
+       // var i = parseInt(Math.random() * (99999 - 0 + 1) + 0);
+        var i=74828;
         var formData = new FormData($('#Form1')[0]);
         $.ajax({
             type: 'post',
@@ -44,13 +59,15 @@
             contentType: false,
         }).success(function (data) {
             //
+            $(location).attr('href', '../operation/share_by_qrcode.html?action=share_to_dp&processid=' + i);
         }).error(function () {
             alert("上传失败");
         });
 
         $("#processid").attr("value", i);
        // $.get('../operation/unpack', $("#Form1").serialize(), function (data) {
-            $(location).attr('href', '../user/addDecryptionUser.html?processid=' + i);
+           // $(location).attr('href', '../user/addDecryptionUser.html?processid=' + i);
+
         //});
         //转跳到添加解密用户的界面
 
@@ -68,7 +85,7 @@
                 <br>
                 <input type="hidden" id="processid" name="processid" value="-999"/>
                 <input type="hidden" name="doAction" value="true"/>
-                <input type="button" id="Button5" name="" value="确定" onclick="mysubmit()"/>
+                <input type="button" id="Button5" name="" value="确定"/>
             </form>
         </div>
     </div>

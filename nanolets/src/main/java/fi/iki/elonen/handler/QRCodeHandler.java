@@ -32,16 +32,19 @@ public class QRCodeHandler extends DefaultStreamHandler {
         String contect = "";
         if (params.get("action").equalsIgnoreCase("share_to_ep")) {
             EncryptProcess ep = AppNanolets.instance.getEncryptProcess(processid);
-            contect = "../user/addEncryptionUser.html?processid=" + processid ;
+            contect = "/user/addEncryptionUser.html?processid=" + processid ;
         } else {
             DecryptProcess dp = AppNanolets.instance.getDecryptProcess(processid);
-            contect = "../user/addDecryptionUser.html?processid=" + processid ;
+            contect = "/user/addDecryptionUser.html?processid=" + processid ;
         }
 
 
         try {
             //TODO:不用修改
-            BufferedImage image = QRCodeUtil.createImage(AppNanolets.url+"/user/addDecryptionUser.html?processid=" + processid, "", false);
+            System.out.println(AppNanolets.url+contect);
+            BufferedImage image = QRCodeUtil.createImage(AppNanolets.url+contect, "", false);
+           QRCodeUtil.insertImage(image, "C:\\Users\\QinHuoBin\\Desktop\\Repository\\b.png",true);
+
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ImageIO.write(image, QRCodeUtil.FORMAT_NAME, baos);
             String src = "data:image/jpg;base64," + Base64.getEncoder().encodeToString(baos.toByteArray());

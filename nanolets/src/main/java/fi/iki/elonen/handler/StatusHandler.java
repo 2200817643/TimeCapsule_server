@@ -44,12 +44,23 @@ AppNanolets instance;
             JSONObject json=new JSONObject();
 
             DecryptProcess dp=instance.getDecryptProcess(processid);
+
+            List<User> leftUsers=new ArrayList<>();
+            List<User> totalUsers=dp.getOptions().getTotal_users();
+            List<User> decryptingUsers=dp.getOptions().getDecrypting_users();
+            for(User user:totalUsers){
+                if(!decryptingUsers.contains(user)){
+                    leftUsers.add(user);
+                }
+            }
+            System.out.println("剩下没输密码的解密者："+getUsersNames(leftUsers));
             json.put("capsulename",dp.getOptions().getCapsulename());
             json.put("totalNum",dp.getOptions().getTotalNum());
             json.put("leastNum",dp.getOptions().getLeastNum());
             json.put("completedNum",dp.getOptions().getDecrypting_users().size());
-            json.put("completedUsers",getUsersNames(dp.getOptions().getDecrypting_users()));
-            json.put("totalUserNames",getUsersNames(dp.getOptions().getTotal_users()));
+            json.put("completedUsers",getUsersNames(decryptingUsers));
+            json.put("totalUserNames",getUsersNames(totalUsers));
+            json.put("leftUsersNames",getUsersNames(leftUsers));
             json.put("canDownload",dp.getOptions().canDownload);
             return NanoHTTPD.newChunkedResponse(getStatus(),getMimeType(),toInputStream(json.toJSONString()));
         }

@@ -55,12 +55,12 @@
                 $("#totalNum").text("总参与者人数：" + data.totalNum);
                 $("#leastNum").text("最少解密者人数：" + data.leastNum);
                 $("#completedNum").text("参加解密的人数：" + data.completedNum);
-                if ((data.totalNum - data.completedNum) == 0) {
+                if ((data.leastNum - data.completedNum) == 0) {
                     $("#qrcode").attr("src","");
                     $("#uncompletedNum").html("<h1>已经全部输入完毕，正在为您解封胶囊...</h1>");
                     $("#header_1").text("正在解封胶囊...")
                 } else {
-                    $("#uncompletedNum").text("还剩余" + (data.totalNum - data.completedNum) + "人");
+                    $("#uncompletedNum").text("还剩余" + (data.leastNum - data.completedNum) + "人");
                 }
                 if (data.canDownload) {
                     setTimeout(function(){

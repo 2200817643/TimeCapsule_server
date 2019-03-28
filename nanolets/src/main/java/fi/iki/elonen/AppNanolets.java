@@ -17,7 +17,7 @@ import java.util.logging.Logger;
 // 只是一个中转类罢了，看RouterNanoHTTPD
 public class AppNanolets extends RouterNanoHTTPD {
     //TODO:修改这个
-public static String url="http://10.176.133.251:9090";
+public static String url="http://192.168.43.931:9090";
     private static final int PORT = 9090;
     private Map<Integer, EncryptProcess> encryptings = new HashMap<>();
     private Map<Integer, DecryptProcess> decryptings = new HashMap<>();

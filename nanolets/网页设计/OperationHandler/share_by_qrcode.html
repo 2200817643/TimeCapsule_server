@@ -21,11 +21,11 @@
     <div data-role="header" id="Header1">
         <h1>请扫描二维码</h1>
     </div>
-
+<br>
     <img id="qrcode">
     <br>
-    <p>请点击APP界面下方的"参与封存/解封"（或微信中的"扫一扫"），
-    <br>扫描二维码以参与封存</p>
+    <p>请点击APP界面下方的"参与封存/解封"（或微信中的"扫一扫"）
+    <br>扫描二维码以填写您的信息</p>
 
     <a id="href">（或者点此）</a>
 
@@ -42,7 +42,7 @@
     })(jQuery);
 
     $(document).ready(function () {
-        $.getJSON("../qrcode?action=share_to_ep&processid="+$.getUrlParam("processid"),function (data) {
+        $.getJSON("../qrcode?action="+$.getUrlParam("action")+"&processid="+$.getUrlParam("processid"),function (data) {
             $("#qrcode").attr("src",data.src);
 $("#href").attr("href",data.contect);
         })

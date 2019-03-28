@@ -110,7 +110,7 @@ private final int MODE;
             total_users.add(user);
 
             if (total_users.size() == getLeastNum()) {
-                System.out.println("达到设定的最大人数");
+                System.out.println("达到设定的最小解密人数");
             }
         }
         else if(mode==Cipher.DECRYPT_MODE){

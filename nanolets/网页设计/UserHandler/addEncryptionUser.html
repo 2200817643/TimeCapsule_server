@@ -64,21 +64,69 @@
 
 
     }
+    $(document).ready(function () {
+        $("#Button5").click(function () {
+            $(this).attr({"disabled":"disabled"});
+            mysubmit();
+        });
+    })
+
+    $(document).ready(function () {
+        $("#textpd").show();
+        $("#textqd").hide();
+
+        $("#textp").click(function () {
+            $("#textpd").show();
+            $("#textqd").hide();
+        })
+        $("#textq").click(function () {
+            $("#textpd").hide();
+            $("#textqd").show();
+        })
+
+    });
+	
+	$(this).keydown( function(e) {
+    var key = window.event?e.keyCode:e.which;
+    if(key.toString() == "13"){
+        return false;
+    }
+});
+
 
 </script>
 <div id="set_center">
     <div data-role="header" id="Header1">
-        <h1>请输入你的信息和上传文件</h1>
+        <h1>请输入您的信息和上传文件</h1>
     </div>
     <div class="ui-content" role="main">
-        <form name="Form1" method="get" action="../user/addEncryptionUser.html" target="_self" data-ajax="true"
+        <form name="Form1" method="get" action="../user/addEncryptionUser.html" target="_self" data-ajax="true" autocomplete="off"
               id="Form1" style="display:inline;">
-            <label for="Editbox1">你的昵称</label>
-            <input type="text" id="Editbox1" style="" name="username" value="" spellcheck="false"/>
-            <label for="Editbox2">密码</label>
+            <label for="Editbox1">您的昵称</label>
+            <input type="text" id="Editbox1" style="" name="username" value="" spellcheck="false" autocomplete="off"/>
+
+            <label>选择密码类型</label>
+            <input name="passwordtype" id="textp" type="radio" checked="checked"/>文本密码
+            <input name="passwordtype" id="textq" type="radio"/>问题密码
+<hr>
+            <div id="textpd">
+            <label id="pl" for="Editbox2">密码</label>
             <input type="password" id="Editbox2" style="" name="password" value="" spellcheck="false"/>
-            <label for="Editbox2">电话（可选）</label>
-            <input type="text" id="Editbox3" style="" name="tel" value="" spellcheck="false"/>
+            </div>
+
+            <div id="textqd">
+            <label id="w1">问题1</label>
+            <input type="text" id="w11" style="" value="" spellcheck="false"/>
+            <label id="w111">答案1</label>
+            <input type="text" id="w1111" style="" name="password1" value="" spellcheck="false"/>
+
+            <label id="w2">问题2</label>
+            <input type="text" id="w22" style="" value="" spellcheck="false"/>
+            <label id="w222">答案2</label>
+            <input type="text" id="w2222" style="" name="password1" value="" spellcheck="false"/>
+            </div>
+
+
             <label for="Editbox2">邮箱（可选）</label>
             <input type="text" id="Editbox4" style="" name="mail" value="" spellcheck="false"/>
             <label for="uploadingfiles">请添加要封存的文件</label>
@@ -88,7 +136,7 @@
 
             <input type="hidden" id="processid" name="processid" value="-999"/>
             <input type="hidden" name="doAction" value="true"/>
-            <input type="button" id="Button5" name="" value="确定" onclick="mysubmit()"/>
+            <input type="button" id="Button5" name="" value="确定" />
         </form>
     </div>
 </div>
