@@ -35,7 +35,7 @@ private int processid=-999;
     static final String encryptedFile_FIELD_NAME = "EncryptedFile";
     static final String packedFile_FIELD_NAME = "packedFile";
     static final String capsuleFile_FIELD_NAME = "capsuleFile";
-    static final String mainPass = "CooL2116NiTh5252";
+    static final String mainPass = "CooL2116NiTh5252";//TODO 改为随机密码
     //packedFile：将上传的文件打包成一个zip，方便加密
     //encryptedFile：将zip加密后的文件
     //capsuleFile：最终提供下载的包囊文件

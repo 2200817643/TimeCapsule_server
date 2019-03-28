@@ -110,6 +110,7 @@ public class UserHandler extends StaticPageHandler {
                 int processid = Integer.valueOf(params.get("processid"));
                 DecryptProcess dp = AppNanolets.instance.getDecryptProcess(processid);
                 User user =dp.options.findUser(String.valueOf(params.get("username")));
+                user.setPassword(String.valueOf(params.get("password")));
                 try {
                     dp.addUser(user);
                     return newFixedLengthResponse(getStatus(), getMimeType(),  String.valueOf(processid));
